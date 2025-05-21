@@ -26,21 +26,31 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/datingApp',
 
 // Check if profile exists
 // Check if profile exists
-app.get('/api/check-profile', async (req, res) => {
+app.post('/api/dating-profile', async (req, res) => {
   try {
-    // console.log("Recived!!");
-    const user_id = req.headers['x-user-id']; // ✅ Proper way to get user_id
+    const user_id = req.headers['x-user-id']; // ✅ Get from headers
+
     if (!user_id) {
       return res.status(400).json({ message: 'Missing user_id in headers' });
     }
 
-    const profile = await DatingProfile.findOne({ user_id });
-    res.json({ exists: !!profile });
+    // Check if profile already exists
+    const existingProfile = await DatingProfile.findOne({ user_id });
+    if (existingProfile) {
+      return res.status(400).json({ message: 'Profile already exists' });
+    }
+
+    // Create new profile with req.body + user_id from token
+    const newProfile = new DatingProfile({ ...req.body, user_id });
+    await newProfile.save();
+
+    res.status(201).json(newProfile);
   } catch (error) {
-    console.error('Check profile error:', error);
-    res.status(500).json({ message: "Server error" });
+    console.error('Error creating profile:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
 
 
 

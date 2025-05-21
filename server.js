@@ -51,33 +51,22 @@ app.post('/api/dating-profile', async (req, res) => {
   }
 });
 
-
-
-
-// Create dating profile
-app.post('/dating-profile', async (req, res) => {
+app.get('/api/check-profile', async (req, res) => {
   try {
-    const { user_id } = req.body;
+    // console.log("Recived!!");
+    const user_id = req.headers['x-user-id']; // ✅ Proper way to get user_id
     if (!user_id) {
-      return res.status(400).json({ message: 'Missing user_id in body' });
+      return res.status(400).json({ message: 'Missing user_id in headers' });
     }
 
-    // Check if profile already exists
-    const existingProfile = await DatingProfile.findOne({ user_id });
-    if (existingProfile) {
-      return res.status(400).json({ message: 'Profile already exists' });
-    }
-
-    // Create new profile
-    const newProfile = new DatingProfile({ ...req.body });
-    await newProfile.save();
-
-    res.status(201).json(newProfile);
+    const profile = await DatingProfile.findOne({ user_id });
+    res.json({ exists: !!profile });
   } catch (error) {
-    console.error('Error creating profile:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Check profile error:', error);
+    res.status(500).json({ message: "Server error" });
   }
 });
+
 
 // Get user's dating profile
 app.get('/api/dating-profile/:user_id', async (req, res) => {

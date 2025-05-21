@@ -6,9 +6,6 @@ import dotenv from 'dotenv';
 import DatingProfile from './models/DatingProfile.js';
 import walletRoutes from './routes/walletRoutes.js'; // Adjust path if needed
 import paymentMethodRoutes from './routes/paymentMethodRoutes.js';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
 
 dotenv.config();
 

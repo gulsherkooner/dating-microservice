@@ -145,58 +145,6 @@ app.post('/api/matches', async (req, res) => {
 app.use('/api',walletRoutes);
 // app.use('/api', paymentMethodRoutes); // for future 
 
-
-// Serve uploaded files statically
-app.use('/uploads', express.static(path.join(path.resolve(), 'uploads')));
-
-// Setup multer storage
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadDir = path.join(path.resolve(), 'uploads');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir);
-    }
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
-    const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
-    cb(null, filename);
-  },
-});
-
-const upload = multer({ storage });
-
-// Upload profilePic or bannerImage
-app.post('/api/dating-profile/upload-image', upload.single('image'), async (req, res) => {
-  try {
-    const user_id = req.headers['x-user-id'];
-    const type = req.body.type; // 'profilePic' or 'banner'
-
-    if (!user_id || !type || !req.file) {
-      return res.status(400).json({ message: 'Missing data' });
-    }
-
-    const fileUrl = `/uploads/${req.file.filename}`;
-    const updateField = type === 'banner' ? { bannerImageUrl: fileUrl } : { profilePicUrl: fileUrl };
-
-    const updatedProfile = await DatingProfile.findOneAndUpdate(
-      { user_id },
-      { $set: updateField },
-      { new: true }
-    );
-
-    if (!updatedProfile) {
-      return res.status(404).json({ message: 'Profile not found' });
-    }
-
-    res.json({ url: fileUrl });
-  } catch (err) {
-    console.error('Image upload error:', err);
-    res.status(500).json({ message: 'Upload failed' });
-  }
-});
-
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

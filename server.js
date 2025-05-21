@@ -45,7 +45,7 @@ app.get('/api/check-profile', async (req, res) => {
 
 
 // Create dating profile
-router.post('/dating-profile', async (req, res) => {
+app.post('/dating-profile', async (req, res) => {
   try {
     const { user_id } = req.body;
     if (!user_id) {

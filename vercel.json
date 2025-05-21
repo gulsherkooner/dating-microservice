@@ -8,7 +8,85 @@
   ],
   "routes": [
     {
+      "src": "/api",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api/check-profile",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api/dating-profile",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api/dating-profile/:user_id",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api/find-dating-profile/:_id",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api/dating-profile/:user_id",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api//matches",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api/wallet/topup",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api/wallet/:userId",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api/wallet/deduct",
+      "dest": "server.js"
+    },
+
+
+    {
       "src": "/api/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api/check-profile/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api/dating-profile/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api/dating-profile/:user_id/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api/find-dating-profile/:_id/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api/dating-profile/:user_id/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api//matches/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api/wallet/topup/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api/wallet/:userId/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/api/wallet/deduct/(.*)",
       "dest": "server.js"
     },
     {

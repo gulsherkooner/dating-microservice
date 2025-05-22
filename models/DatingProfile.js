@@ -17,7 +17,9 @@ const datingProfileSchema = new mongoose.Schema({
   describeSelf: String,
   idealDate: String,
   greatPartner: String,
-  likes: [String]
+  likes: [String],
+  profile_img_url:[String],
+  banner_img_url:[String]
 }, { timestamps: true });
 
 export default mongoose.model('DatingProfile', datingProfileSchema);

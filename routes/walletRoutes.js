@@ -63,7 +63,7 @@ router.post('/wallet/deduct', async (req, res) => {
   try {
     const userId = req.headers['x-user-id'];
     const { amount, purpose } = req.body;
-    console.log("Recieved");
+    // console.log("Recieved");
 
     if (!userId || !amount) {
       return res.status(400).json({ error: "Missing required fields." });

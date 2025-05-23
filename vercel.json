@@ -90,6 +90,10 @@
       "dest": "server.js"
     },
     {
+      "src": "/api/dating-posts/(.*)",
+      "dest": "server.js"
+    },
+    {
       "src": "/(.*)",
       "dest": "server.js",
       "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

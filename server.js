@@ -8,7 +8,7 @@ import paymentMethodRoutes from './routes/paymentMethodRoutes.js';
 import uploadToDropbox from './config/dropbox.js';
 import getDbxToken from './utils/getDbxToken.js';
 import datingPostRoutes from './routes/datingPost.routes.js';
-
+import settingsRoutes from './routes/settings.routes.js';
 dotenv.config();
 
 const app = express();
@@ -192,7 +192,7 @@ app.post('/api/matches', async (req, res) => {
 app.use('/api', walletRoutes);
 // app.use('/api', paymentMethodRoutes); // for future 
 app.use('/api/dating-posts', datingPostRoutes);
-
+app.use('/api/settings', settingsRoutes);
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

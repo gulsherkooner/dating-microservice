@@ -18,10 +18,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' })); // Increased limit for image uploads
 
 // MongoDB connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/datingApp', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => console.log("✅ MongoDB connected"))
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/datingApp').then(() => console.log("✅ MongoDB connected"))
   .catch(err => console.error("❌ MongoDB connection error:", err));
 
 // Check if profile exists

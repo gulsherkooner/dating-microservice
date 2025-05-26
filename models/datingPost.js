@@ -5,6 +5,7 @@ const datingPostSchema = new mongoose.Schema({
   image: { type: String, required: true },   // base64 string or URL
   type: { type: String, default: 'image/jpeg' },
   name: { type: String },
+  ispinned:{type: Boolean},
 }, { timestamps: true }); // includes createdAt, updatedAt
 
 export default mongoose.model('DatingPost', datingPostSchema);

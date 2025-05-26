@@ -40,3 +40,27 @@ export const getUserPosts = async (req, res) => {
     res.status(500).json({ error: 'Server error while fetching posts' });
   }
 };
+
+export const updatePinStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { ispinned } = req.body;
+    const user_id = req.user.sub;
+
+    const post = await DatingPost.findOneAndUpdate(
+      { _id: id, user_id },           // match correct post
+      { $set: { ispinned } },         // update field properly
+      { new: true }
+    );
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found or unauthorized' });
+    }
+
+    res.json(post);
+  } catch (err) {
+    console.error('Failed to update pin:', err);
+    res.status(500).json({ error: 'Server error while updating pin' });
+  }
+};
+

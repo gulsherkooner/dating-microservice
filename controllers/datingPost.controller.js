@@ -1,5 +1,7 @@
 import DatingPost from '../models/datingPost.js';
-import uploadToDropbox  from '../utils/uploadToDropbox.js';
+import uploadToDropbox from '../utils/uploadToDropbox.js';
+
+// Create a new post
 export const createPost = async (req, res) => {
   try {
     const { image, type, name } = req.body;
@@ -7,15 +9,13 @@ export const createPost = async (req, res) => {
 
     if (!image) return res.status(400).json({ error: 'Image is required' });
 
-    // Correct argument order: filename first, then base64 image string
+    // Upload image to Dropbox
     const dropboxResponse = await uploadToDropbox(name, image);
-
-    // Extract a string path from dropboxResponse
     const dropboxFilePath = dropboxResponse.publicUrl;
 
     const post = await DatingPost.create({
       user_id,
-      image: dropboxFilePath, // store string path or ID in image field
+      image: dropboxFilePath,
       type,
       name,
     });
@@ -27,12 +27,15 @@ export const createPost = async (req, res) => {
   }
 };
 
-
+// Get all posts for a user
 export const getUserPosts = async (req, res) => {
   try {
     const user_id = req.user.sub || req.user.user_id;
 
-    const posts = await DatingPost.find({ user_id }).sort({ createdAt: -1 });
+    const posts = await DatingPost.findAll({
+      where: { user_id },
+      order: [['createdAt', 'DESC']],
+    });
 
     res.json(posts);
   } catch (err) {
@@ -41,21 +44,26 @@ export const getUserPosts = async (req, res) => {
   }
 };
 
+// Update pin status of a post
 export const updatePinStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { ispinned } = req.body;
-    const user_id = req.user.sub;
+    const user_id = req.user.sub || req.user.user_id;
 
-    const post = await DatingPost.findOneAndUpdate(
-      { _id: id, user_id },           // match correct post
-      { $set: { ispinned } },         // update field properly
-      { new: true }
-    );
+    const post = await DatingPost.findOne({
+      where: {
+        id,
+        user_id,
+      },
+    });
 
     if (!post) {
       return res.status(404).json({ error: 'Post not found or unauthorized' });
     }
+
+    post.ispinned = ispinned;
+    await post.save();
 
     res.json(post);
   } catch (err) {

@@ -1,10 +1,23 @@
-import mongoose from 'mongoose';
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js'; // adjust the path if needed
 
-const cardSchema = new mongoose.Schema({
-  userId: { type: String, required: true },
-  name: String,          // e.g., Visa...2463
-  icon: String,          // icon path or label
-  type: String           // 'card' | 'netbanking'
+const UserPaymentMethod = sequelize.define('UserPaymentMethod', {
+  userId: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  name: {
+    type: DataTypes.STRING, // e.g., Visa...2463
+  },
+  icon: {
+    type: DataTypes.STRING, // icon path or label
+  },
+  type: {
+    type: DataTypes.STRING, // 'card' | 'netbanking'
+  }
+}, {
+  timestamps: true,
+  tableName: 'UserPaymentMethod',
 });
 
-export default mongoose.model('UserPaymentMethod', cardSchema);
+export default UserPaymentMethod;

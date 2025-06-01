@@ -1,11 +1,34 @@
-import mongoose from 'mongoose';
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js'; // adjust the path if your sequelize instance is elsewhere
 
-const datingPostSchema = new mongoose.Schema({
-  user_id: { type: String, required: true }, // References DatingProfile.user_id
-  image: { type: String, required: true },   // base64 string or URL
-  type: { type: String, default: 'image/jpeg' },
-  name: { type: String },
-  ispinned:{type: Boolean},
-}, { timestamps: true }); // includes createdAt, updatedAt
+const DatingPost = sequelize.define('DatingPost', {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  user_id: {
+    type: DataTypes.STRING,
+    allowNull: false, // References DatingProfile.user_id
+  },
+  image: {
+    type: DataTypes.STRING,
+    allowNull: false, // URL or base64 string
+  },
+  type: {
+    type: DataTypes.STRING,
+    defaultValue: 'image/jpeg',
+  },
+  name: {
+    type: DataTypes.STRING,
+  },
+  ispinned: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+}, {
+  timestamps: true, // includes createdAt, updatedAt
+  tableName: 'DatingPost', // optional: specify table name
+});
 
-export default mongoose.model('DatingPost', datingPostSchema);
+export default DatingPost;

@@ -1,15 +1,50 @@
-import mongoose from 'mongoose';
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js'; // adjust the path if needed
 
-const transactionSchema = new mongoose.Schema({
-  title: String,
-  amount: Number,
-  date: Date,
+const UserWallet = sequelize.define('UserWallet', {
+  userId: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  balance: {
+    type: DataTypes.FLOAT,
+    defaultValue: 0,
+  }
+}, {
+  timestamps: true,
+  tableName: 'UserWallet',
 });
 
-const walletSchema = new mongoose.Schema({
-  userId: { type: String, required: true, unique: true },
-  balance: { type: Number, default: 0 },
-  transactions: [transactionSchema],
+// Transaction model (one-to-many with UserWallet)
+const WalletTransaction = sequelize.define('WalletTransaction', {
+  userWalletId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: UserWallet,
+      key: 'id'
+    }
+  },
+  title: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  amount: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+  },
+  date: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+  }
+}, {
+  timestamps: true,
+  tableName: 'WalletTransaction',
 });
 
-export default mongoose.model('UserWallet', walletSchema);
+// Associations
+UserWallet.hasMany(WalletTransaction, { foreignKey: 'userWalletId', as: 'transactions' });
+WalletTransaction.belongsTo(UserWallet, { foreignKey: 'userWalletId', as: 'wallet' });
+
+export { UserWallet, WalletTransaction };

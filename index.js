@@ -1,15 +1,17 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
 import dotenv from 'dotenv';
-import DatingProfile from './models/DatingProfile.js';
+dotenv.config();
+import express from 'express';
+import cors from 'cors';
+import sequelize from './config/db.js'; // Sequelize instance
+import DatingProfile from './models/DatingProfile.js'; // Sequelize model
 import walletRoutes from './routes/walletRoutes.js';
 import paymentMethodRoutes from './routes/paymentMethodRoutes.js';
 import uploadToDropbox from './config/dropbox.js';
 import getDbxToken from './utils/getDbxToken.js';
 import datingPostRoutes from './routes/datingPost.routes.js';
 import settingsRoutes from './routes/settings.routes.js';
-dotenv.config();
+import logger from './config/logger.js';
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -17,9 +19,16 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json({ limit: '10mb' })); // Increased limit for image uploads
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/datingApp').then(() => console.log("✅ MongoDB connected"))
-  .catch(err => console.error("❌ MongoDB connection error:", err));
+// Postgres connection
+sequelize
+  .authenticate()
+  .then(() => {
+    logger.info("Connected to PostgreSQL");
+  })
+  .catch((error) => {
+    logger.error("Error connecting to PostgreSQL:", error.message);
+    process.exit(1);
+  });
 
 // Check if profile exists
 app.post('/api/dating-profile', async (req, res) => {
@@ -29,13 +38,12 @@ app.post('/api/dating-profile', async (req, res) => {
       return res.status(400).json({ message: 'Missing user_id in headers' });
     }
 
-    const existingProfile = await DatingProfile.findOne({ user_id });
+    const existingProfile = await DatingProfile.findOne({ where: { user_id } });
     if (existingProfile) {
       return res.status(400).json({ message: 'Profile already exists' });
     }
 
-    const newProfile = new DatingProfile({ ...req.body, user_id });
-    await newProfile.save();
+    const newProfile = await DatingProfile.create({ ...req.body, user_id });
     res.status(201).json(newProfile);
   } catch (error) {
     console.error('Error creating profile:', error);
@@ -50,7 +58,7 @@ app.get('/api/check-profile', async (req, res) => {
       return res.status(400).json({ message: 'Missing user_id in headers' });
     }
 
-    const profile = await DatingProfile.findOne({ user_id });
+    const profile = await DatingProfile.findOne({ where: { user_id } });
     res.json({ exists: !!profile });
   } catch (error) {
     console.error('Check profile error:', error);
@@ -61,7 +69,7 @@ app.get('/api/check-profile', async (req, res) => {
 // Get user's dating profile
 app.get('/api/dating-profile/:user_id', async (req, res) => {
   try {
-    const profile = await DatingProfile.findOne({ user_id: req.params.user_id });
+    const profile = await DatingProfile.findOne({ where: { user_id: req.params.user_id } });
     if (!profile) return res.status(404).json({ message: "Profile not found" });
     res.json(profile);
   } catch (error) {
@@ -69,9 +77,9 @@ app.get('/api/dating-profile/:user_id', async (req, res) => {
   }
 });
 
-app.get('/api/find-dating-profile/:_id', async (req, res) => {
+app.get('/api/find-dating-profile/:id', async (req, res) => {
   try {
-    const profile = await DatingProfile.findOne({ _id: req.params._id });
+    const profile = await DatingProfile.findByPk(req.params.id);
     if (!profile) return res.status(404).json({ message: "Profile not found" });
     res.json(profile);
   } catch (error) {
@@ -133,7 +141,7 @@ app.put('/api/dating-profile/:user_id', async (req, res) => {
       }
 
       const mediaUrl = await uploadToDropbox(
-        base64DataToBuffer(banner_img_data.blob),  // <--- consistent decoding here
+        base64DataToBuffer(banner_img_data.blob),
         `dating-banner-${user_id}-${Date.now()}.jpg`,
         dbxAccessToken,
         res
@@ -145,10 +153,12 @@ app.put('/api/dating-profile/:user_id', async (req, res) => {
       updateData.banner_img_url = [mediaUrl];
     }
 
-    const updatedProfile = await DatingProfile.findOneAndUpdate(
-      { user_id },
-      { $set: updateData },
-      { new: true }
+    const [updatedRows, [updatedProfile]] = await DatingProfile.update(
+      updateData,
+      {
+        where: { user_id },
+        returning: true,
+      }
     );
 
     if (!updatedProfile) {
@@ -162,22 +172,22 @@ app.put('/api/dating-profile/:user_id', async (req, res) => {
   }
 });
 
-// Get matches
+// Get matches (example using Sequelize)
 app.post('/api/matches', async (req, res) => {
   const filters = req.body;
   try {
-    const query = {
-      ...(filters.gender && { gender: { $in: [filters.gender] } }),
+    const where = {
+      ...(filters.gender && { gender: filters.gender }),
       ...(filters.ageRange && {
-        age: { $gte: filters.ageRange[0], $lte: filters.ageRange[1] }
+        age: { [Op.between]: filters.ageRange }
       }),
-      ...(filters.locations?.length && { locations: { $in: filters.locations } }),
-      ...(filters.languages?.length && { languages: { $in: filters.languages } }),
-      ...(filters.lookingFor && { lookingFor: { $in: [filters.lookingFor] } }),
-      ...(filters.likes?.length && { likes: { $in: filters.likes } }),
+      ...(filters.locations?.length && { locations: filters.locations }),
+      ...(filters.languages?.length && { languages: filters.languages }),
+      ...(filters.lookingFor && { lookingFor: filters.lookingFor }),
+      ...(filters.likes?.length && { likes: filters.likes }),
     };
 
-    const results = await DatingProfile.find(query);
+    const results = await DatingProfile.findAll({ where });
     res.json({ profiles: results });
   } catch (err) {
     console.error('❌ Matching failed:', err);
@@ -187,9 +197,10 @@ app.post('/api/matches', async (req, res) => {
 
 // Routes
 app.use('/api', walletRoutes);
-// app.use('/api', paymentMethodRoutes); // for future 
+app.use('/api', paymentMethodRoutes);
 app.use('/api/dating-posts', datingPostRoutes);
 app.use('/api/settings', settingsRoutes);
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

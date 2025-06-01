@@ -1,56 +1,73 @@
 // models/Settings.js
-import mongoose from 'mongoose';
-const settingsSchema = new mongoose.Schema({
-  user_id: { type: String, required: true, unique: true },
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js'; // adjust the path if needed
 
+const Settings = sequelize.define('Settings', {
+  user_id: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
   accessibility: {
-    appearance: String,
-    colorContrast: String,
-    fontSize: String,
-    autoplay: String
-  },
-
-  content: {
-    localContent: String,
-    sensitiveContentLevel: String,
-    suggestionPreference: String,
-    likes: [String],
-    dislikes: [String]
-  },
-
-  notifications: {
-    email: {
-      reminders: String,
-      updates: String,
-      tips: String,
-      connections: String,
-      suggestions: String
+    type: DataTypes.JSONB,
+    defaultValue: {
+      appearance: "",
+      colorContrast: "",
+      fontSize: "",
+      autoplay: ""
     },
-    push: {
-      messages: String,
-      trending: String,
-      offers: String,
-      news: String,
-      comments: String,
-      likes: String,
-      datingMessages: String
+  },
+  content: {
+    type: DataTypes.JSONB,
+    defaultValue: {
+      localContent: "",
+      sensitiveContentLevel: "",
+      suggestionPreference: "",
+      likes: [],
+      dislikes: []
+    },
+  },
+  notifications: {
+    type: DataTypes.JSONB,
+    defaultValue: {
+      email: {
+        reminders: "",
+        updates: "",
+        tips: "",
+        connections: "",
+        suggestions: ""
+      },
+      push: {
+        messages: "",
+        trending: "",
+        offers: "",
+        news: "",
+        comments: "",
+        likes: "",
+        datingMessages: ""
+      }
     }
   },
-
   privacy: {
-    messages: {
-      whoCanMessage: String,
-      readReceipts: String,
-      onlineStatus: String
-    },
-    location: {
-      showInProfile: String,
-      allowAccess: String,
-      suggestions: String
-    },
-    blockedUsers: [{ name: String, handle: String }],
-    mutedUsers: [{ name: String, handle: String }]
+    type: DataTypes.JSONB,
+    defaultValue: {
+      messages: {
+        whoCanMessage: "",
+        readReceipts: "",
+        onlineStatus: ""
+      },
+      location: {
+        showInProfile: "",
+        allowAccess: "",
+        suggestions: ""
+      },
+      blockedUsers: [],
+      mutedUsers: []
+    }
   }
+}, {
+  timestamps: true,
+  tableName: 'Settings',
 });
 
-export default mongoose.model('Settings', settingsSchema);
+export default Settings;

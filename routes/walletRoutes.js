@@ -1,55 +1,60 @@
 import express from 'express';
-import UserWallet from '../models/UserWallet.js'; // Adjust path if needed
+import { UserWallet, WalletTransaction } from '../models/UserWallet.js'; // Sequelize models
 
 const router = express.Router();
 
 // Add money to wallet
 router.post('/wallet/topup', async (req, res) => {
   try {
-    const userId = req.headers['x-user-id']; // get userId from header
+    const userId = req.headers['x-user-id'];
     const { amount, method } = req.body;
 
     if (!userId || !amount || !method) {
       return res.status(400).json({ error: "Missing required fields." });
     }
 
-    const userWallet = await UserWallet.findOneAndUpdate(
-      { userId },
-      {
-        $inc: { balance: amount },
-        $push: {
-          transactions: {
-            title: `Wallet Top-Up (${method})`,
-            amount,
-            date: new Date()
-          }
-        }
-      },
-      { new: true, upsert: true }
-    );
+    // Find or create wallet
+    let userWallet = await UserWallet.findOne({ where: { userId } });
+    if (!userWallet) {
+      userWallet = await UserWallet.create({ userId, balance: 0 });
+    }
 
-    res.json(userWallet);
+    // Update balance
+    userWallet.balance += amount;
+    await userWallet.save();
+
+    // Add transaction
+    await WalletTransaction.create({
+      userWalletId: userWallet.id,
+      title: `Wallet Top-Up (${method})`,
+      amount,
+      date: new Date()
+    });
+
+    // Fetch updated wallet with transactions
+    const updatedWallet = await UserWallet.findOne({
+      where: { userId },
+      include: [WalletTransaction]
+    });
+
+    res.json(updatedWallet);
   } catch (err) {
     console.error('Top-up failed:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-
 // Get wallet info
-// GET /api/wallet/:userId
 router.get('/wallet/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
-    let wallet = await UserWallet.findOne({ userId });
+    let wallet = await UserWallet.findOne({
+      where: { userId },
+      include: [WalletTransaction]
+    });
 
     if (!wallet) {
-      // Create a new wallet for this user
-      wallet = await UserWallet.create({
-        userId,
-        balance: 0,
-        transactions: [],
-      });
+      wallet = await UserWallet.create({ userId, balance: 0 });
     }
 
     res.json(wallet);
@@ -59,17 +64,17 @@ router.get('/wallet/:userId', async (req, res) => {
   }
 });
 
+// Deduct from wallet
 router.post('/wallet/deduct', async (req, res) => {
   try {
     const userId = req.headers['x-user-id'];
     const { amount, purpose } = req.body;
-    // console.log("Recieved");
 
     if (!userId || !amount) {
       return res.status(400).json({ error: "Missing required fields." });
     }
 
-    const wallet = await UserWallet.findOne({ userId });
+    const wallet = await UserWallet.findOne({ where: { userId } });
 
     if (!wallet) {
       return res.status(404).json({ error: "Wallet not found." });
@@ -79,20 +84,20 @@ router.post('/wallet/deduct', async (req, res) => {
       return res.status(400).json({ error: "Insufficient funds." });
     }
 
-    const updatedWallet = await UserWallet.findOneAndUpdate(
-      { userId },
-      {
-        $inc: { balance: -amount },
-        $push: {
-          transactions: {
-            title: purpose || "Service Deduction",
-            amount: -amount,
-            date: new Date()
-          }
-        }
-      },
-      { new: true }
-    );
+    wallet.balance -= amount;
+    await wallet.save();
+
+    await WalletTransaction.create({
+      userWalletId: wallet.id,
+      title: purpose || "Service Deduction",
+      amount: -amount,
+      date: new Date()
+    });
+
+    const updatedWallet = await UserWallet.findOne({
+      where: { userId },
+      include: [WalletTransaction]
+    });
 
     res.json({ success: true, wallet: updatedWallet });
   } catch (err) {
@@ -100,6 +105,5 @@ router.post('/wallet/deduct', async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 export default router;

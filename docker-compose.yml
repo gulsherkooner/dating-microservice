@@ -1,0 +1,19 @@
+services:
+  dating-service:
+    image: dating-service:${TAG:-latest}
+    build:
+      context: /root/cent-stage/dating-service
+      dockerfile: Dockerfile
+      cache_from:
+        - dating-service:cache
+    env_file:
+      - /root/cent-stage/dating-service/.env
+    ports:
+      - "3003:3003"
+    networks:
+      - cent-stage-network
+    restart: unless-stopped
+
+networks:
+  cent-stage-network:
+    external: true

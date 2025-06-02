@@ -40,7 +40,7 @@ const WalletTransaction = sequelize.define('WalletTransaction', {
   }
 }, {
   timestamps: true,
-  tableName: 'waller_transaction',
+  tableName: 'wallet_transaction',
 });
 
 // Associations

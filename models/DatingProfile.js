@@ -65,7 +65,7 @@ const DatingProfile = sequelize.define('DatingProfile', {
   website: DataTypes.STRING,
 }, {
   timestamps: true,
-  tableName: 'DatingProfile',
+  tableName: 'dating_profile',
 });
 
 export default DatingProfile;

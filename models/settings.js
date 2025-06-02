@@ -67,7 +67,7 @@ const Settings = sequelize.define('Settings', {
   }
 }, {
   timestamps: true,
-  tableName: 'Settings',
+  tableName: 'settings',
 });
 
 export default Settings;

@@ -28,7 +28,7 @@ const DatingPost = sequelize.define('DatingPost', {
   },
 }, {
   timestamps: true, // includes createdAt, updatedAt
-  tableName: 'DatingPost', // optional: specify table name
+  tableName: 'dating_post', // optional: specify table name
 });
 
 export default DatingPost;

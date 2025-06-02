@@ -13,7 +13,7 @@ const UserWallet = sequelize.define('UserWallet', {
   }
 }, {
   timestamps: true,
-  tableName: 'UserWallet',
+  tableName: 'user_wallet',
 });
 
 // Transaction model (one-to-many with UserWallet)
@@ -40,7 +40,7 @@ const WalletTransaction = sequelize.define('WalletTransaction', {
   }
 }, {
   timestamps: true,
-  tableName: 'WalletTransaction',
+  tableName: 'waller_transaction',
 });
 
 // Associations

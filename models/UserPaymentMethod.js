@@ -17,7 +17,7 @@ const UserPaymentMethod = sequelize.define('UserPaymentMethod', {
   }
 }, {
   timestamps: true,
-  tableName: 'UserPaymentMethod',
+  tableName: 'user_payment_method',
 });
 
 export default UserPaymentMethod;

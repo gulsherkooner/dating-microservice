@@ -1,5 +1,6 @@
 import express from 'express';
 import { UserWallet, WalletTransaction } from '../models/UserWallet.js'; // Sequelize models
+import { Op } from 'sequelize';
 
 const router = express.Router();
 
@@ -34,7 +35,7 @@ router.post('/wallet/topup', async (req, res) => {
     // Fetch updated wallet with transactions
     const updatedWallet = await UserWallet.findOne({
       where: { userId },
-      include: [WalletTransaction]
+      include: [{ model: WalletTransaction, as: 'transactions' }]
     });
 
     res.json(updatedWallet);
@@ -96,7 +97,7 @@ router.post('/wallet/deduct', async (req, res) => {
 
     const updatedWallet = await UserWallet.findOne({
       where: { userId },
-      include: [WalletTransaction]
+      include: [{ model: WalletTransaction, as: 'transactions' }]
     });
 
     res.json({ success: true, wallet: updatedWallet });

@@ -22,9 +22,12 @@ export const findMatches = async (req, res) => {
       ...(filters.likes?.length && { likes: { [Op.overlap]: filters.likes } })
     };
 
+    console.log("Where clause:", where);
+
     const profiles = await DatingProfile.findAll({ where, limit, offset });
     res.json({ profiles });
   } catch (error) {
+    console.error("Error in findMatches:", error);
     res.status(500).json({ message: "Error finding matches", error: error.message });
   }
 };

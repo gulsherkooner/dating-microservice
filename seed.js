@@ -1,6 +1,6 @@
 // scripts/seedProfiles.js
-import DatingProfile from '../models/DatingProfile.js';
-import sequelize from '../config/db.js';
+import DatingProfile from './models/DatingProfile.js';
+import sequelize from './config/db.js';
 
 const sampleData = {
   locations: ["Jersey city", "New york", "Newark", "Stamford"],

@@ -3,17 +3,19 @@ import { Op } from 'sequelize';
 
 export const findMatches = async (req, res) => {
   const filters = req.body;
+  const { limit = 20, offset = 0 } = req.query;
+
   try {
     const where = {
-      ...(filters.gender && { gender: filters.gender }),
-      ...(filters.ageRange && { age: { [Op.between]: filters.ageRange } }),
-      ...(filters.locations?.length && { locations: { [Op.contains]: filters.locations } }),
-      ...(filters.languages?.length && { languages: { [Op.contains]: filters.languages } }),
-      ...(filters.lookingFor && { lookingFor: filters.lookingFor }),
-      ...(filters.likes?.length && { likes: { [Op.contains]: filters.likes } })
+      ...(filters.gender && { gender: { [Op.overlap]: filters.gender } }),
+      ...(filters.ageRange?.length === 2 && { age: { [Op.between]: filters.ageRange } }),
+      ...(filters.locations?.length && { locations: { [Op.overlap]: filters.locations } }),
+      ...(filters.languages?.length && { languages: { [Op.overlap]: filters.languages } }),
+      ...(filters.lookingFor && { lookingFor: { [Op.overlap]: filters.lookingFor } }),
+      ...(filters.likes?.length && { likes: { [Op.overlap]: filters.likes } })
     };
 
-    const profiles = await DatingProfile.findAll({ where });
+    const profiles = await DatingProfile.findAll({ where, limit, offset });
     res.json({ profiles });
   } catch (error) {
     res.status(500).json({ message: 'Error finding matches', error });

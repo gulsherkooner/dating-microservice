@@ -4,7 +4,7 @@ import Settings from '../models/settings.js';
 const router = express.Router();
 
 // Get user settings
-router.get('/:user_id', async (req, res) => {
+router.get('/settings/:user_id', async (req, res) => {
   const { user_id } = req.params;
   if (!user_id) return res.status(400).json({ error: 'Missing user_id' });
 
@@ -18,7 +18,7 @@ router.get('/:user_id', async (req, res) => {
 });
 
 // Save or update settings
-router.post('/:user_id', async (req, res) => {
+router.post('/settings/:user_id', async (req, res) => {
   const { user_id } = req.params;
   const newSettings = req.body;
 

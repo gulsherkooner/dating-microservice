@@ -4,8 +4,8 @@ import { extractUserFromHeader } from '../middleware/extractUser.js';
 
 const router = express.Router();
 
-router.post('/', extractUserFromHeader, createPost);
-router.get('/me', extractUserFromHeader, getUserPosts);
-router.patch('/pin-post/:id', extractUserFromHeader, updatePinStatus);
+router.post('/dating-posts', extractUserFromHeader, createPost);
+router.get('/dating/me', extractUserFromHeader, getUserPosts);
+router.patch('/dating-posts/pin-post/:id', extractUserFromHeader, updatePinStatus);
 
 export default router;

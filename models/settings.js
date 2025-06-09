@@ -1,6 +1,5 @@
-// models/Settings.js
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/db.js'; // adjust the path if needed
+import sequelize from '../config/db.js'; // adjust path as needed
 
 const Settings = sequelize.define('Settings', {
   user_id: {
@@ -10,6 +9,7 @@ const Settings = sequelize.define('Settings', {
   },
   accessibility: {
     type: DataTypes.JSONB,
+    allowNull: false,
     defaultValue: {
       appearance: "",
       colorContrast: "",
@@ -19,6 +19,7 @@ const Settings = sequelize.define('Settings', {
   },
   content: {
     type: DataTypes.JSONB,
+    allowNull: false,
     defaultValue: {
       localContent: "",
       sensitiveContentLevel: "",
@@ -29,6 +30,7 @@ const Settings = sequelize.define('Settings', {
   },
   notifications: {
     type: DataTypes.JSONB,
+    allowNull: false,
     defaultValue: {
       email: {
         reminders: "",
@@ -50,6 +52,7 @@ const Settings = sequelize.define('Settings', {
   },
   privacy: {
     type: DataTypes.JSONB,
+    allowNull: false,
     defaultValue: {
       messages: {
         whoCanMessage: "",

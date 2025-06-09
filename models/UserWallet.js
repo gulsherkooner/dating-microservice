@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/db.js'; // adjust the path if needed
+import sequelize from '../config/db.js'; // adjust path if needed
 
 const UserWallet = sequelize.define('UserWallet', {
   userId: {
@@ -9,6 +9,7 @@ const UserWallet = sequelize.define('UserWallet', {
   },
   balance: {
     type: DataTypes.FLOAT,
+    allowNull: false,
     defaultValue: 0,
   }
 }, {
@@ -16,14 +17,14 @@ const UserWallet = sequelize.define('UserWallet', {
   tableName: 'user_wallet',
 });
 
-// Transaction model (one-to-many with UserWallet)
+// Transaction model
 const WalletTransaction = sequelize.define('WalletTransaction', {
   userWalletId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: UserWallet,
-      key: 'id'
+      key: 'id',
     }
   },
   title: {
@@ -36,6 +37,7 @@ const WalletTransaction = sequelize.define('WalletTransaction', {
   },
   date: {
     type: DataTypes.DATE,
+    allowNull: false,
     defaultValue: DataTypes.NOW,
   }
 }, {

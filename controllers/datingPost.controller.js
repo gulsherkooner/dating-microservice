@@ -9,7 +9,6 @@ export const createPost = async (req, res) => {
 
     if (!image) return res.status(400).json({ error: 'Image is required' });
 
-    // Upload image to Dropbox
     const dropboxResponse = await uploadToDropbox(name, image);
     const dropboxFilePath = dropboxResponse.publicUrl;
 
@@ -51,12 +50,7 @@ export const updatePinStatus = async (req, res) => {
     const { ispinned } = req.body;
     const user_id = req.user.sub || req.user.user_id;
 
-    const post = await DatingPost.findOne({
-      where: {
-        id,
-        user_id,
-      },
-    });
+    const post = await DatingPost.findOne({ where: { id, user_id } });
 
     if (!post) {
       return res.status(404).json({ error: 'Post not found or unauthorized' });
@@ -71,4 +65,3 @@ export const updatePinStatus = async (req, res) => {
     res.status(500).json({ error: 'Server error while updating pin' });
   }
 };
-

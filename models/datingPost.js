@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/db.js'; // adjust the path if your sequelize instance is elsewhere
+import sequelize from '../config/db.js';
 
 const DatingPost = sequelize.define('DatingPost', {
   id: {
@@ -9,11 +9,11 @@ const DatingPost = sequelize.define('DatingPost', {
   },
   user_id: {
     type: DataTypes.STRING,
-    allowNull: false, // References DatingProfile.user_id
+    allowNull: false,
   },
   image: {
     type: DataTypes.STRING,
-    allowNull: false, // URL or base64 string
+    allowNull: false,
   },
   type: {
     type: DataTypes.STRING,
@@ -27,8 +27,8 @@ const DatingPost = sequelize.define('DatingPost', {
     defaultValue: false,
   },
 }, {
-  timestamps: true, // includes createdAt, updatedAt
-  tableName: 'dating_post', // optional: specify table name
+  timestamps: true,
+  tableName: 'dating_post',
 });
 
 export default DatingPost;

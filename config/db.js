@@ -1,5 +1,12 @@
 import dotenv from 'dotenv';
 dotenv.config();
+
+console.log("Using DB credentials:", {
+  host: process.env.POSTGRES_HOST,
+  user: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASSWORD,
+});
+
 import { Sequelize } from 'sequelize';
 
 const sequelize = new Sequelize({

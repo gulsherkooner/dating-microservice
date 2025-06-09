@@ -1,10 +1,10 @@
 import express from 'express';
-import { UserWallet, WalletTransaction } from '../models/UserWallet.js'; // Sequelize models
+import { UserWallet, WalletTransaction } from '../models/UserWallet.js';
 import { Op } from 'sequelize';
 
 const router = express.Router();
 
-// Add money to wallet
+// 🟢 Top-up wallet
 router.post('/wallet/topup', async (req, res) => {
   try {
     const userId = req.headers['x-user-id'];
@@ -14,28 +14,24 @@ router.post('/wallet/topup', async (req, res) => {
       return res.status(400).json({ error: "Missing required fields." });
     }
 
-    // Find or create wallet
     let userWallet = await UserWallet.findOne({ where: { userId } });
     if (!userWallet) {
       userWallet = await UserWallet.create({ userId, balance: 0 });
     }
 
-    // Update balance
     userWallet.balance += amount;
     await userWallet.save();
 
-    // Add transaction
     await WalletTransaction.create({
       userWalletId: userWallet.id,
       title: `Wallet Top-Up (${method})`,
       amount,
-      date: new Date()
+      date: new Date(),
     });
 
-    // Fetch updated wallet with transactions
     const updatedWallet = await UserWallet.findOne({
       where: { userId },
-      include: [{ model: WalletTransaction, as: 'transactions' }]
+      include: [{ model: WalletTransaction, as: 'transactions' }],
     });
 
     res.json(updatedWallet);
@@ -45,13 +41,14 @@ router.post('/wallet/topup', async (req, res) => {
   }
 });
 
-// Get wallet info
+// 🟡 Get wallet by user ID
 router.get('/wallet/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
+
     let wallet = await UserWallet.findOne({
       where: { userId },
-      include: [WalletTransaction]
+      include: [{ model: WalletTransaction, as: 'transactions' }],
     });
 
     if (!wallet) {
@@ -60,12 +57,12 @@ router.get('/wallet/:userId', async (req, res) => {
 
     res.json(wallet);
   } catch (err) {
-    console.error('Fetch or create wallet error:', err);
+    console.error('Fetch wallet failed:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Deduct from wallet
+// 🔴 Deduct wallet amount
 router.post('/wallet/deduct', async (req, res) => {
   try {
     const userId = req.headers['x-user-id'];
@@ -92,12 +89,12 @@ router.post('/wallet/deduct', async (req, res) => {
       userWalletId: wallet.id,
       title: purpose || "Service Deduction",
       amount: -amount,
-      date: new Date()
+      date: new Date(),
     });
 
     const updatedWallet = await UserWallet.findOne({
       where: { userId },
-      include: [{ model: WalletTransaction, as: 'transactions' }]
+      include: [{ model: WalletTransaction, as: 'transactions' }],
     });
 
     res.json({ success: true, wallet: updatedWallet });

@@ -1,13 +1,16 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/db.js'; // adjust the path if needed
+import sequelize from '../config/db.js';
 
 const DatingProfile = sequelize.define('DatingProfile', {
   user_id: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true, // Each user has one profile
+    unique: true,
   },
-  firstName: DataTypes.STRING,
+  firstName: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   gender: {
     type: DataTypes.ARRAY(DataTypes.STRING),
     defaultValue: [],
@@ -20,8 +23,14 @@ const DatingProfile = sequelize.define('DatingProfile', {
     type: DataTypes.ARRAY(DataTypes.STRING),
     defaultValue: [],
   },
-  age: DataTypes.INTEGER,
-  height: DataTypes.STRING,
+  age: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  height: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   drinkFreq: {
     type: DataTypes.ARRAY(DataTypes.STRING),
     defaultValue: [],
@@ -46,9 +55,18 @@ const DatingProfile = sequelize.define('DatingProfile', {
     type: DataTypes.ARRAY(DataTypes.STRING),
     defaultValue: [],
   },
-  describeSelf: DataTypes.STRING,
-  idealDate: DataTypes.STRING,
-  greatPartner: DataTypes.STRING,
+  describeSelf: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  idealDate: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  greatPartner: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   likes: {
     type: DataTypes.ARRAY(DataTypes.STRING),
     defaultValue: [],
@@ -61,8 +79,14 @@ const DatingProfile = sequelize.define('DatingProfile', {
     type: DataTypes.ARRAY(DataTypes.STRING),
     defaultValue: [],
   },
-  phone: DataTypes.STRING,
-  website: DataTypes.STRING,
+  phone: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  website: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 }, {
   timestamps: true,
   tableName: 'dating_profile',

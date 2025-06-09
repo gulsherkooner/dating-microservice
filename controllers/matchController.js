@@ -1,9 +1,11 @@
+import { Op } from 'sequelize';
+import DatingProfile from '../models/DatingProfile.js';
+
 export const findMatches = async (req, res) => {
   let filters = req.body;
-  const { limit = 20, offset = 0 } = req.query;
 
   try {
-    // Normalize scalar filters into arrays
+    // Normalize to arrays if needed
     if (filters.gender && !Array.isArray(filters.gender)) {
       filters.gender = [filters.gender];
     }
@@ -13,21 +15,17 @@ export const findMatches = async (req, res) => {
 
     const where = {
       ...(filters.gender?.length && { gender: { [Op.overlap]: filters.gender } }),
-      ...(Array.isArray(filters.ageRange) && filters.ageRange.length === 2 && {
-        age: { [Op.between]: filters.ageRange }
-      }),
+      ...(filters.ageRange?.length === 2 && { age: { [Op.between]: filters.ageRange } }),
       ...(filters.locations?.length && { locations: { [Op.overlap]: filters.locations } }),
       ...(filters.languages?.length && { languages: { [Op.overlap]: filters.languages } }),
       ...(filters.lookingFor?.length && { lookingFor: { [Op.overlap]: filters.lookingFor } }),
-      ...(filters.likes?.length && { likes: { [Op.overlap]: filters.likes } })
+      ...(filters.likes?.length && { likes: { [Op.overlap]: filters.likes } }),
     };
 
-    console.log("Where clause:", where);
-
-    const profiles = await DatingProfile.findAll({ where, limit, offset });
+    const profiles = await DatingProfile.findAll({ where });
     res.json({ profiles });
   } catch (error) {
     console.error("Error in findMatches:", error);
-    res.status(500).json({ message: "Error finding matches", error: error.message });
+    res.status(500).json({ message: 'Error finding matches', error: error.message });
   }
 };

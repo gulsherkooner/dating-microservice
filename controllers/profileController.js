@@ -56,9 +56,23 @@ export const getDatingProfileById = async (req, res) => {
 
 export const getDatingProfiles = async (req, res) => {
   try {
-    const profiles = await DatingProfile.findAll();
+    const currentUserId = req.headers['x-user-id'];
+
+    if (!currentUserId) {
+      return res.status(400).json({ message: 'User ID header missing' });
+    }
+
+    const profiles = await DatingProfile.findAll({
+      where: {
+        user_id: {
+          [Op.ne]: currentUserId, // not equal to the current user
+        },
+      },
+    });
+
     res.json(profiles);
   } catch (error) {
+    console.error('Error fetching profiles:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

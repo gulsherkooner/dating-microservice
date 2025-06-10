@@ -53,6 +53,7 @@ export const getDatingProfileById = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 export const getDatingProfiles = async (req, res) => {
   try {
     const profiles = await DatingProfile.findAll();
@@ -61,7 +62,6 @@ export const getDatingProfiles = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-
 
 export const updateDatingProfile = async (req, res) => {
   try {

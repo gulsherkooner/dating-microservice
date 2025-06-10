@@ -4,7 +4,8 @@ import {
   checkProfile,
   getDatingProfileByUserId,
   getDatingProfileById,
-  updateDatingProfile
+  updateDatingProfile,
+  getDatingProfiles
 } from '../controllers/profileController.js';
 
 const router = express.Router();

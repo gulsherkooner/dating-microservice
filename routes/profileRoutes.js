@@ -10,6 +10,7 @@ import {
 const router = express.Router();
 
 router.post('/dating-profile', createDatingProfile);
+router.get('/dating-profiles', getDatingProfiles);
 router.get('/check-profile', checkProfile);
 router.get('/dating-profile/:user_id', getDatingProfileByUserId);
 router.get('/find-dating-profile/:id', getDatingProfileById);

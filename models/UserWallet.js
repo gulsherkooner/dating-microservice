@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/db.js'; // adjust path if needed
+import sequelize from '../config/db.js';
 
+// Wallet table
 const UserWallet = sequelize.define('UserWallet', {
   userId: {
     type: DataTypes.STRING,
@@ -17,8 +18,13 @@ const UserWallet = sequelize.define('UserWallet', {
   tableName: 'user_wallet',
 });
 
-// Transaction model
+// ✅ Fix: Add ID with autoIncrement
 const WalletTransaction = sequelize.define('WalletTransaction', {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
   userWalletId: {
     type: DataTypes.INTEGER,
     allowNull: false,

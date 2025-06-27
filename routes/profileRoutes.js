@@ -5,9 +5,9 @@ import {
   getDatingProfileByUserId,
   getDatingProfileById,
   updateDatingProfile,
-  getDatingProfiles
+  getDatingProfiles,
+  getUnlockedContacts
 } from '../controllers/profileController.js';
-import { getUnlockedContacts } from '../controllers/chatPermissionController.js'; // 👈 ADD
 
 const router = express.Router();
 

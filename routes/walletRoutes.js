@@ -66,9 +66,9 @@ router.get('/wallet/:userId', async (req, res) => {
 router.post('/wallet/deduct', async (req, res) => {
   try {
     const userId = req.headers['x-user-id'];
-    const { amount, purpose } = req.body;
+    const { amount, purpose, targetUserId } = req.body;
 
-    if (!userId || !amount) {
+    if (!userId || !amount || !targetUserId) {
       return res.status(400).json({ error: "Missing required fields." });
     }
 
@@ -82,9 +82,11 @@ router.post('/wallet/deduct', async (req, res) => {
       return res.status(400).json({ error: "Insufficient funds." });
     }
 
+    // Deduct balance
     wallet.balance -= amount;
     await wallet.save();
 
+    // Log transaction
     await WalletTransaction.create({
       userWalletId: wallet.id,
       title: purpose || "Service Deduction",
@@ -92,16 +94,18 @@ router.post('/wallet/deduct', async (req, res) => {
       date: new Date(),
     });
 
+    // ✅ FIXED: Use userId from header
+    await ChatPermission.findOrCreate({
+      where: {
+        fromUserId: userId,
+        toUserId: targetUserId,
+      },
+    });
+
     const updatedWallet = await UserWallet.findOne({
       where: { userId },
       include: [{ model: WalletTransaction, as: 'transactions' }],
     });
-    // After successful deduction:
-    await ChatPermission.create({
-      fromUserId: req.user.id, // logged-in user
-      toUserId: req.body.targetUserId,
-    });
-
 
     res.json({ success: true, wallet: updatedWallet });
   } catch (err) {
@@ -109,5 +113,6 @@ router.post('/wallet/deduct', async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 export default router;

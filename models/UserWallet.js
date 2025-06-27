@@ -24,6 +24,7 @@ const WalletTransaction = sequelize.define('WalletTransaction', {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
+    allowNull: false,
   },
   userWalletId: {
     type: DataTypes.INTEGER,

@@ -1,7 +1,7 @@
 import DatingProfile from '../models/DatingProfile.js';
 import getDbxToken from '../utils/getDbxToken.js';
 import uploadToDropbox from '../config/dropbox.js';
-
+import ChatPermission from '../models/ChatPermission.js';
 function base64DataToBuffer(base64String) {
   const base64Data = base64String.split(',')[1] || base64String;
   return Buffer.from(base64Data, 'base64');

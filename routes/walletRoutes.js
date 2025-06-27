@@ -1,7 +1,7 @@
 import express from 'express';
 import { UserWallet, WalletTransaction } from '../models/UserWallet.js';
 import { Op } from 'sequelize';
-
+import ChatPermission from '../models/ChatPermission.js';
 const router = express.Router();
 
 // 🟢 Top-up wallet
@@ -96,6 +96,12 @@ router.post('/wallet/deduct', async (req, res) => {
       where: { userId },
       include: [{ model: WalletTransaction, as: 'transactions' }],
     });
+    // After successful deduction:
+    await ChatPermission.create({
+      fromUserId: req.user.id, // logged-in user
+      toUserId: req.body.targetUserId,
+    });
+
 
     res.json({ success: true, wallet: updatedWallet });
   } catch (err) {

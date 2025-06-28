@@ -28,7 +28,7 @@ export const findMatches = async (req, res) => {
 
     const allProfiles = await DatingProfile.findAll({ where });
 
-    res.status(200).json({ profiles: matchedProfiles });
+    res.status(200).json({ profiles: allProfiles });
   } catch (error) {
     console.error("Error in findMatches:", error);
     res.status(500).json({ message: 'Error finding matches', error: error.message });

@@ -114,11 +114,30 @@ export const updateDatingProfile = async (req, res) => {
 
 export const getUnlockedContacts = async (req, res) => {
   const { user_id } = req.params;
-  try {
-    const permissions = await ChatPermission.findAll({ where: { fromUserId: user_id } });
-    const ids = permissions.map(p => p.toUserId);
 
-    const profiles = await DatingProfile.findAll({ where: { user_id: ids } });
+  try {
+    const permissions = await ChatPermission.findAll({
+      where: {
+        [Op.or]: [
+          { fromUserId: user_id },
+          { toUserId: user_id },
+        ],
+      },
+    });
+
+    const ids = new Set();
+
+    permissions.forEach(p => {
+      // If user initiated, add the target
+      if (p.fromUserId === user_id) ids.add(p.toUserId);
+      // If user was the target, add the one who paid
+      if (p.toUserId === user_id) ids.add(p.fromUserId);
+    });
+
+    const profiles = await DatingProfile.findAll({
+      where: { user_id: [...ids] }
+    });
+
     res.json(profiles);
   } catch (err) {
     console.error("Error fetching unlocked contacts", err);

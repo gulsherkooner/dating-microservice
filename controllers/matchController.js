@@ -28,33 +28,6 @@ export const findMatches = async (req, res) => {
 
     const allProfiles = await DatingProfile.findAll({ where });
 
-    // Further filter in JS: locations (loose match), languages, likes
-    const matchedProfiles = allProfiles.filter(profile => {
-      // 1. Loose location match (partial includes)
-      if (locationArray.length > 0 && profile.locations?.length > 0) {
-        const match = locationArray.some(filterLoc =>
-          profile.locations.some(userLoc =>
-            userLoc.toLowerCase().includes(filterLoc.toLowerCase())
-          )
-        );
-        if (!match) return false;
-      }
-
-      // 2. Languages (at least one overlap)
-      if (languagesArray.length > 0 && profile.languages?.length > 0) {
-        const overlap = profile.languages.some(lang => languagesArray.includes(lang));
-        if (!overlap) return false;
-      }
-
-      // 3. Likes (at least one overlap)
-      if (likesArray.length > 0 && profile.likes?.length > 0) {
-        const overlap = profile.likes.some(like => likesArray.includes(like));
-        if (!overlap) return false;
-      }
-
-      return true;
-    });
-
     res.status(200).json({ profiles: matchedProfiles });
   } catch (error) {
     console.error("Error in findMatches:", error);

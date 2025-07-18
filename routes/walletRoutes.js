@@ -114,5 +114,48 @@ router.post('/wallet/deduct', async (req, res) => {
   }
 });
 
+router.post('/wallet/withdraw', async (req, res) => {
+  try {
+    const userId = req.headers['x-user-id'];
+    const { amount, purpose } = req.body;
+
+    if (!userId || !amount) {
+      return res.status(400).json({ error: "Missing required fields." });
+    }
+
+    const wallet = await UserWallet.findOne({ where: { userId } });
+
+    if (!wallet) {
+      return res.status(404).json({ error: "Wallet not found." });
+    }
+
+    if (wallet.balance < amount) {
+      return res.status(400).json({ error: "Insufficient funds." });
+    }
+
+    // Deduct the amount
+    wallet.balance -= amount;
+    await wallet.save();
+
+    // Log the withdrawal as a transaction (negative amount)
+    await WalletTransaction.create({
+      userWalletId: wallet.id,
+      title: purpose || "Wallet Withdrawal",
+      amount: -amount,
+      date: new Date(),
+    });
+
+    // Return updated wallet with transactions
+    const updatedWallet = await UserWallet.findOne({
+      where: { userId },
+      include: [{ model: WalletTransaction, as: 'transactions' }],
+    });
+
+    res.json({ success: true, wallet: updatedWallet });
+  } catch (err) {
+    console.error("Withdrawal failed:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 export default router;
